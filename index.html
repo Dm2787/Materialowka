@@ -17,7 +17,26 @@
         .section-title { font-weight: 800; margin-bottom: 12px; font-size: 11px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 8px; }
         .section-title::after { content:''; flex:1; height:1px; background: rgba(148, 163, 184, 0.2); }
 
-        #searchInput { width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #ef4444; background: #1e293b; color: white; margin-bottom: 15px; }
+        #searchWrapper {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: #0f172a;
+    padding: 10px;
+    border-bottom: 2px solid #3b82f6;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+#searchInput {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    background: #1e293b;
+    color: white;
+    font-size: 16px;
+    outline: none;
+}
 
         /* --- ZAKŁADKI --- */
         .tabs-container { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
@@ -86,12 +105,14 @@
     <h1 class="neon-title">Materiałówka</h1>
     <div class="top-signature">by Damian Muttke</div>
 
-    <input id="searchInput" type="text" placeholder="Szukaj elementu...">
-
-    <div class="section">
-        <div id="tabsContainer" class="tabs-container"></div>
-        <button class="btn" style="font-size:11px" onclick="addTab(event)">+ Nowa Budowa</button>
+    
+    <div id="searchWrapper">
+    <input id="searchInput" type="text" placeholder="Szukaj materiału...">
     </div>
+
+   <div id="searchWrapper">
+    <input id="searchInput" type="text" placeholder="Szukaj materiału...">
+</div>
 
     <div class="section">
         <div class="section-title">Informacje</div>
