@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Materiałówka PRO + Interakcja</title>
+    <link rel="manifest" href="manifest.json">
+    <style>
+        /* --- BAZA --- */
+        * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
+        body { margin: 0; font-family: 'Segoe UI', sans-serif; background: #0f172a; color: #e2e8f0; padding: 15px; padding-bottom: 60px; }
+        
+        .neon-title { font-size: 28px; font-weight: 900; text-align: center; margin: 10px 0; color: #fff; text-shadow: 0 0 10px #3b82f6; }
+        .top-signature { text-align: center; font-family: cursive; font-size: 12px; color: #fb923c; margin-bottom: 15px; }
+        
+        .section { background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 15px; margin-bottom: 15px; position: relative; overflow: hidden; }
+        .section-title { font-weight: 800; margin-bottom: 12px; font-size: 11px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 8px; }
+        .section-title::after { content:''; flex:1; height:1px; background: rgba(148, 163, 184, 0.2); }
+
+        #searchInput { width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #ef4444; background: #1e293b; color: white; margin-bottom: 15px; }
+
+        /* --- ZAKŁADKI --- */
+        .tabs-container { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+        .tab { padding: 8px 12px; background: #334155; border-radius: 8px; cursor: pointer; font-size: 12px; border: 1px solid transparent; position: relative; overflow: hidden; }
+        .tab.active { background: #1e3a8a; border-color: #3b82f6; box-shadow: 0 0 10px rgba(59, 130, 246, 0.3); }
+
+        .input-label { font-size: 10px; color: #94a3b8; text-transform: uppercase; margin-bottom: 4px; margin-left: 2px; display: block; }
+
+        /* --- ANIMACJE --- */
+        @keyframes text-pulse-yellow {
+            0% { color: #ffff00; text-shadow: 0 0 2px rgba(255, 255, 0, 0.2); }
+            50% { color: #facc15; text-shadow: 0 0 12px rgba(255, 255, 0, 0.8); }
+            100% { color: #ffff00; text-shadow: 0 0 2px rgba(255, 255, 0, 0.2); }
+        }
+
+        @keyframes bounce-val { 0% { transform: scale(1); } 50% { transform: scale(1.3); color: #4ade80; } 100% { transform: scale(1); } }
+        .bounce-anim { animation: bounce-val 0.2s ease-out; }
+
+        .ripple { position: absolute; background: rgba(255, 255, 255, 0.4); border-radius: 50%; transform: scale(0); animation: ripple-anim 0.5s linear; pointer-events: none; }
+        @keyframes ripple-anim { to { transform: scale(4); opacity: 0; } }
+
+        /* --- ELEMENTY LISTY --- */
+        .material-card { margin-top: 15px; }
+        .material-name { font-weight: 800; font-size: 18px; color: #93c5fd; border-bottom: 2px solid #3b82f6; margin-bottom: 8px; padding: 8px 5px; transition: 0.3s; }
+        .group-active .material-name { animation: text-pulse-yellow 1.5s infinite; border-bottom-color: #ffff00; }
+
+        .dimension-row { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-radius: 8px; margin-bottom: 4px; background: rgba(0,0,0,0.2); position: relative; overflow: hidden; transition: 0.3s; }
+        .active-dimension { border: 1px solid rgba(255, 255, 0, 0.3); background: rgba(255, 255, 0, 0.04) !important; }
+        .active-dimension div:first-child { color: #ffff00; font-weight: bold; }
+        
+        .qty-box { display: flex; align-items: center; gap: 4px; position: relative; z-index: 2; }
+        .qty { width: 45px; height: 36px; text-align: center; background: #0f172a; color: white; border: 1px solid #475569; border-radius: 6px; font-weight: bold; transition: 0.2s; pointer-events: none; }
+        .qty.selected { background: #ffff00 !important; color: #000 !important; border-color: #ffff00; }
+        
+        .qty-btn { 
+            width: 36px; height: 36px; background: #334155; border: 1px solid #475569; 
+            color: white; border-radius: 8px; font-weight: bold; cursor: pointer; 
+            position: relative; overflow: hidden; transition: transform 0.1s;
+        }
+        .qty-btn:active { transform: scale(0.8); background: #3b82f6; }
+        .qty-btn.fast { width: 32px; height: 32px; font-size: 10px; background: #1e293b; color: #94a3b8; }
+        .qty-btn.fast:active { background: #ef4444; }
+
+        /* --- INPUTY I PRZYCISKI --- */
+        input, select, textarea { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #334155; background: #1e293b; color: white; margin-bottom: 8px; }
+        .btn { padding: 12px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; color: white; background: #475569; width: 100%; text-transform: uppercase; position: relative; overflow: hidden; }
+        .btn-blue { background: #1e40af; }
+        .btn-red { background: #7f1d1d; }
+
+        .summary-box { white-space: pre-wrap; font-size: 13px; padding: 15px; background: #000; color: #cbd5e1; border-radius: 8px; border: 1px solid #334155; line-height: 1.5; border-left: 4px solid #3b82f6; }
+        
+        .db-item { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid #334155; font-size: 13px; }
+        .db-actions { display: flex; gap: 10px; font-weight: bold; }
+        .act-edit { color: #3b82f6; cursor: pointer; }
+        .act-del { color: #ef4444; cursor: pointer; }
+
+        .order-preview { background: rgba(15, 23, 42, 0.5); border-radius: 8px; padding: 10px; margin-bottom: 10px; font-size: 11px; border: 1px dashed #475569; line-height: 1.6; }
+        .order-preview-item { display: inline-block; background: #334155; padding: 2px 8px; border-radius: 4px; margin: 2px; color: #94a3b8; }
+        .order-preview-item.current-active { background: #1e40af; color: #fff; border: 1px solid #3b82f6; }
+        
+        .weight-badge { font-size: 9px; color: #4ade80; background: rgba(74, 222, 128, 0.1); padding: 2px 4px; border-radius: 4px; margin-top: 2px; display: block; }
+    </style>
+</head>
+<body onclick="initAudio()">
+
+    <h1 class="neon-title">Materiałówka</h1>
+    <div class="top-signature">by Damian Muttke</div>
+
+    <input id="searchInput" type="text" placeholder="Szukaj elementu...">
+
+    <div class="section">
+        <div id="tabsContainer" class="tabs-container"></div>
+        <button class="btn" style="font-size:11px" onclick="addTab(event)">+ Nowa Budowa</button>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Informacje</div>
+        <input id="scaffoldNumber" type="text" placeholder="Numer rusztowania">
+    </div>
+
+    <div id="mainContainer"></div>
+
+    <div class="section">
+        <div class="section-title">Kalkulator</div>
+        <label class="input-label">Długość (np. 3+4.5)</label>
+        <input id="calcLength" type="text" placeholder="Suma metrów bieżących">
+        <div style="display:flex; gap:8px">
+            <div style="flex:1">
+                <label class="input-label">Wysokość</label>
+                <input id="calcHeight" type="number" step="0.01" placeholder="m">
+            </div>
+            <div style="flex:1">
+                <label class="input-label">Szerokość</label>
+                <input id="calcWidth" type="number" step="0.01" placeholder="m">
+            </div>
+        </div>
+        <div id="calcResult" style="color:#4ade80; font-weight:bold; text-align:center; font-size:14px; margin-top:5px"></div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Uwagi</div>
+        <textarea id="notesArea" rows="2" placeholder="Dodatkowe info..."></textarea>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Podsumowanie</div>
+        <div id="summaryContent" class="summary-box"></div>
+        <button class="btn btn-red" style="margin-top:10px" onclick="clearCurrentTab(event)">WYCZYŚĆ WSZYSTKO</button>
+        <button class="btn btn-blue" style="margin-top:8px" onclick="copySummary(event)">KOPIUJ DO SCHOWKA</button>
+    </div>
+
+    <div class="section" style="opacity: 0.9">
+        <div class="section-title">Zarządzanie Bazą</div>
+        <div style="display:flex; gap:5px">
+            <input id="newGroupName" style="margin:0" placeholder="Nowa grupa">
+            <button class="btn" style="width:70px" onclick="addGroup(event)">OK</button>
+        </div>
+        
+        <select id="groupSelect" style="margin-top:10px" onchange="refreshSettingsUI()"></select>
+        
+        <div style="display:flex; gap:5px; margin-bottom:5px">
+            <button class="btn" onclick="moveGroup(-1, event)">↑ Góra</button>
+            <button class="btn" onclick="moveGroup(1, event)">↓ Dół</button>
+        </div>
+
+        <div class="input-label">Podgląd kolejności grup:</div>
+        <div id="groupOrderPreview" class="order-preview"></div>
+
+        <div style="display:flex; gap:5px; margin-top:10px">
+            <input id="newDimValue" style="margin:0" placeholder="Wymiar | waga (np. 3m | 15.4)">
+            <button class="btn" style="width:70px" onclick="addDim(event)">Dodaj</button>
+        </div>
+        <div id="dimsSettingsList" style="margin-top:10px; background: rgba(0,0,0,0.2); border-radius: 8px;"></div>
+        <button class="btn btn-red" style="margin-top:15px; font-size:10px; opacity:0.5" onclick="factoryReset(event)">Reset Systemu</button>
+    </div>
+
+<script>
+/* --- AUDIO --- */
+let audioCtx = null;
+function initAudio() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+}
+function playClick(f = 800) {
+    if (!audioCtx) return;
+    const osc = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(f, audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.1);
+    g.gain.setValueAtTime(0.04, audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+    osc.connect(g); g.connect(audioCtx.destination);
+    osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+}
+
+/* --- RIPPLE --- */
+function createRipple(e) {
+    const el = e.currentTarget;
+    const ripple = document.createElement("span");
+    const rect = el.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height);
+    const x = (e.clientX || e.touches?.[0].clientX) - rect.left - size/2;
+    const y = (e.clientY || e.touches?.[0].clientY) - rect.top - size/2;
+    ripple.style.width = ripple.style.height = `${size}px`;
+    ripple.style.left = `${x}px`;
+    ripple.style.top = `${y}px`;
+    ripple.classList.add("ripple");
+    el.appendChild(ripple);
+    setTimeout(() => ripple.remove(), 600);
+}
+
+/* --- LOGIKA --- */
+let materialData = JSON.parse(localStorage.getItem("materialData")) || {
+    "Pion": ["0,5m | 3.2","1m | 6.4","1,5m | 9.6","2m | 12.8","2,5m | 16.0","3m | 19.2"],
+    "Rygiel": ["0,73m | 3.1","1,09m | 4.5","1,57m | 6.2","2,07m | 8.1","2,57m | 10.1","3,07m | 12.1"]
+};
+let groupOrder = JSON.parse(localStorage.getItem("groupOrder")) || Object.keys(materialData);
+let tabs = JSON.parse(localStorage.getItem("tabs") || `["Budowa 1"]`);
+let currentTab = localStorage.getItem("currentTab") || "Budowa 1";
+
+window.onload = () => {
+    ["scaffoldNumber", "notesArea", "calcLength", "calcHeight", "calcWidth"].forEach(id => {
+        document.getElementById(id).addEventListener('input', () => { updateSummary(); saveTabData(); });
+    });
+    document.getElementById("searchInput").addEventListener('input', filterMaterials);
+    refreshUI();
+};
+
+function refreshUI() {
+    renderTabs();
+    generateMainList();
+    refreshSettingsUI();
+    updateSummary();
+}
+
+function generateMainList() {
+    const container = document.getElementById("mainContainer");
+    container.innerHTML = "";
+    groupOrder.forEach(g => {
+        const card = document.createElement("div");
+        card.className = "section material-card";
+        card.dataset.group = g;
+        card.innerHTML = `<div class="material-name">${g}</div>`;
+        let dims = materialData[g] || [];
+        dims.forEach(d => {
+            const parts = d.split("|");
+            const dimName = parts[0].trim();
+            const dimWeight = parts[1] ? parts[1].trim() : "0";
+            
+            const key = `${g}_${dimName}`;
+            const row = document.createElement("div");
+            row.className = "dimension-row";
+            row.innerHTML = `
+                <div>
+                    <div style="font-size:13px">${dimName}</div>
+                    ${dimWeight > 0 ? `<span class="weight-badge">${dimWeight} kg/szt.</span>` : ''}
+                </div>
+                <div class="qty-box">
+                    <button class="qty-btn fast" onclick="changeQty(event, '${key}', -5)">-5</button>
+                    <button class="qty-btn" onclick="changeQty(event, '${key}', -1)">-</button>
+                    <input class="qty" data-key="${key}" data-weight="${dimWeight}" type="number" value="0" readonly>
+                    <button class="qty-btn" onclick="changeQty(event, '${key}', 1)">+</button>
+                    <button class="qty-btn fast" onclick="changeQty(event, '${key}', 5)">+5</button>
+                </div>`;
+            card.appendChild(row);
+        });
+        container.appendChild(card);
+    });
+    // Podpinanie Ripple pod nowe przyciski
+    document.querySelectorAll('.qty-btn, .btn, .tab').forEach(b => b.addEventListener('mousedown', createRipple));
+    loadTabData();
+}
+function changeQty(e, key, delta) {
+    const input = document.querySelector(`input[data-key="${key}"]`);
+    if(input) {
+        input.value = Math.max(0, (parseInt(input.value) || 0) + delta);
+        
+        // Animacja cyferek
+        input.classList.remove('bounce-anim');
+        void input.offsetWidth;
+        input.classList.add('bounce-anim');
+        
+        playClick(delta > 0 ? 1000 : 600);
+        updateSummary();
+        saveTabData();
+    }
+}
+
+function updateSummary() {
+    let text = `Data: ${new Date().toLocaleDateString('pl-PL')}\n`;
+    const nr = document.getElementById("scaffoldNumber").value;
+    if(nr) text += `Nr: ${nr}\n`;
+
+    const lRaw = document.getElementById("calcLength").value.replace(",", ".");
+    const h = parseFloat(document.getElementById("calcHeight").value) || 0;
+    const w = parseFloat(document.getElementById("calcWidth").value) || 0;
+    let lSum = 0;
+    lRaw.split("+").forEach(part => { lSum += parseFloat(part) || 0; });
+
+    if(lSum > 0 || h > 0) {
+        const m2 = lSum * h;
+        const m3 = m2 * w;
+        text += `\nKalkulator:\nSuma długości: ${lSum.toFixed(2)}m\n`;
+        if(h > 0) text += `Wysokość: ${h.toFixed(2)}m\n`;
+        if(w > 0) text += `Szerokość: ${w.toFixed(2)}m\n`;
+        text += `m²: ${m2.toFixed(2)}\n`;
+        if(w > 0) text += `m³: ${m3.toFixed(2)}\n`;
+        document.getElementById("calcResult").innerText = `${m2.toFixed(2)} m² ${m3 > 0 ? '| ' + m3.toFixed(2) + ' m³' : ''}`;
+    } else { document.getElementById("calcResult").innerText = ""; }
+
+    let materialsText = "";
+    let totalWeight = 0;
+    
+    groupOrder.forEach(g => {
+        let groupHasItems = false;
+        const card = document.querySelector(`.material-card[data-group="${g}"]`);
+        document.querySelectorAll(`input[data-key^="${g}_"]`).forEach(input => {
+            const val = parseInt(input.value) || 0;
+            const weight = parseFloat(input.dataset.weight) || 0;
+            const row = input.closest(".dimension-row");
+            if(val > 0) {
+                groupHasItems = true;
+                const dimName = input.dataset.key.replace(g + "_", "");
+                materialsText += `${g} ${dimName} — ${val} szt.\n`;
+                totalWeight += (val * weight);
+                row.classList.add("active-dimension");
+                input.classList.add("selected");
+            } else {
+                row.classList.remove("active-dimension");
+                input.classList.remove("selected");
+            }
+        });
+        if(card) {
+            if(groupHasItems) card.classList.add("group-active");
+            else card.classList.remove("group-active");
+        }
+    });
+
+    if(materialsText) text += `\nLista materiału:\n${materialsText}`;
+    if(totalWeight > 0) text += `\nWaga całkowita: ${totalWeight.toFixed(2)} kg\n`;
+    
+    const notes = document.getElementById("notesArea").value;
+    if(notes) text += `\nUwagi:\n${notes}`;
+    document.getElementById("summaryContent").textContent = text;
+}
+
+function saveTabData() {
+    const data = {
+        nr: document.getElementById("scaffoldNumber").value,
+        notes: document.getElementById("notesArea").value,
+        l: document.getElementById("calcLength").value,
+        h: document.getElementById("calcHeight").value,
+        w: document.getElementById("calcWidth").value,
+        qtys: {}
+    };
+    document.querySelectorAll(".qty").forEach(i => data.qtys[i.dataset.key] = i.value);
+    localStorage.setItem("tabData_" + currentTab, JSON.stringify(data));
+}
+
+function loadTabData() {
+    const saved = JSON.parse(localStorage.getItem("tabData_" + currentTab) || "{}");
+    document.getElementById("scaffoldNumber").value = saved.nr || "";
+    document.getElementById("notesArea").value = saved.notes || "";
+    document.getElementById("calcLength").value = saved.l || "";
+    document.getElementById("calcHeight").value = saved.h || "";
+    document.getElementById("calcWidth").value = saved.w || "";
+    document.querySelectorAll(".qty").forEach(i => i.value = saved.qtys?.[i.dataset.key] || 0);
+    updateSummary();
+}
+
+function renderTabs() {
+    const container = document.getElementById("tabsContainer");
+    container.innerHTML = "";
+    tabs.forEach(t => {
+        const div = document.createElement("div");
+        div.className = `tab ${t === currentTab ? 'active' : ''}`;
+        div.innerHTML = `${t} <span onclick="deleteTab(event, '${t}')" style="margin-left:5px">×</span>`;
+        div.onclick = (e) => { createRipple(e); currentTab = t; localStorage.setItem("currentTab", t); refreshUI(); };
+        container.appendChild(div);
+    });
+}
+
+function addTab(e) {
+    createRipple(e);
+    const name = prompt("Nazwa budowy:");
+    if(name && !tabs.includes(name)) {
+        tabs.push(name); currentTab = name;
+        localStorage.setItem("tabs", JSON.stringify(tabs)); refreshUI();
+    }
+}
+
+function deleteTab(e, name) {
+    e.stopPropagation();
+    if(tabs.length > 1 && confirm("Usunąć budowę?")) {
+        tabs = tabs.filter(t => t !== name);
+        localStorage.removeItem("tabData_" + name);
+        if(currentTab === name) currentTab = tabs[0];
+        localStorage.setItem("tabs", JSON.stringify(tabs)); refreshUI();
+    }
+}
+
+function addGroup(e) {
+    createRipple(e);
+    const n = document.getElementById("newGroupName").value.trim();
+    if(n && !materialData[n]) {
+        materialData[n] = []; groupOrder.push(n);
+        document.getElementById("newGroupName").value = "";
+        saveBase(); refreshUI();
+    }
+}
+
+function moveGroup(dir, e) {
+    createRipple(e);
+    const sel = document.getElementById("groupSelect");
+    const g = sel.value;
+    const i = groupOrder.indexOf(g);
+    const ni = i + dir;
+    if(ni >= 0 && ni < groupOrder.length) {
+        [groupOrder[i], groupOrder[ni]] = [groupOrder[ni], groupOrder[i]];
+        saveBase();
+        generateMainList();
+        refreshSettingsUI();
+        document.getElementById("groupSelect").value = g;
+        refreshSettingsUI(); 
+    }
+}
+
+function addDim(e) {
+    createRipple(e);
+    const g = document.getElementById("groupSelect").value;
+    const v = document.getElementById("newDimValue").value.trim();
+    if(g && v) { materialData[g].push(v); document.getElementById("newDimValue").value = ""; saveBase(); refreshUI(); }
+}
+
+function editDim(g, i) {
+    const oldVal = materialData[g][i];
+    const newVal = prompt("Edytuj (Wymiar | waga):", oldVal);
+    if (newVal !== null && newVal.trim() !== "") {
+        materialData[g][i] = newVal.trim();
+        saveBase();
+        refreshUI();
+    }
+}
+
+function removeDim(g, i) { 
+    if(confirm("Usunąć ten wymiar?")) {
+        materialData[g].splice(i, 1); 
+        saveBase(); 
+        refreshUI(); 
+    }
+}
+
+function refreshSettingsUI() {
+    const sel = document.getElementById("groupSelect");
+    const curr = sel.value; 
+    sel.innerHTML = "";
+    groupOrder.forEach(g => { 
+        const opt = document.createElement("option"); 
+        opt.value = opt.text = g; 
+        sel.appendChild(opt); 
+    });
+    
+    if(curr && materialData[curr]) sel.value = curr;
+    
+    const preview = document.getElementById("groupOrderPreview");
+    preview.innerHTML = "";
+    groupOrder.forEach(g => {
+        const span = document.createElement("span");
+        span.className = `order-preview-item ${g === sel.value ? 'current-active' : ''}`;
+        span.innerText = g;
+        preview.appendChild(span);
+    });
+
+    const list = document.getElementById("dimsSettingsList");
+    list.innerHTML = "";
+    const g = sel.value;
+    if(g && materialData[g]) {
+        materialData[g].forEach((d, i) => {
+            list.innerHTML += `<div class="db-item">
+                <span>${d}</span>
+                <div class="db-actions">
+                    <span class="act-edit" onclick="editDim('${g}', ${i})">Edytuj</span>
+                    <span class="act-del" onclick="removeDim('${g}', ${i})">Usuń</span>
+                </div>
+            </div>`;
+        });
+    }
+}
+
+function saveBase() { localStorage.setItem("materialData", JSON.stringify(materialData)); localStorage.setItem("groupOrder", JSON.stringify(groupOrder)); }
+function clearCurrentTab(e) { createRipple(e); if(confirm("Czy na pewno chcesz wyczyścić wszystko prócz daty?")) { document.getElementById("scaffoldNumber").value = ""; document.getElementById("calcLength").value = ""; document.getElementById("calcHeight").value = ""; document.getElementById("calcWidth").value = ""; document.getElementById("notesArea").value = ""; document.querySelectorAll(".qty").forEach(i => i.value = 0); saveTabData(); updateSummary(); } }
+function copySummary(e) { createRipple(e); playClick(1200); navigator.clipboard.writeText(document.getElementById("summaryContent").textContent); alert("Skopiowano!"); }
+function filterMaterials() { const term = this.value.toLowerCase(); document.querySelectorAll(".material-card").forEach(card => { card.style.display = card.innerText.toLowerCase().includes(term) ? "block" : "none"; }); }
+function factoryReset(e) { createRipple(e); if(confirm("Reset?")) { localStorage.clear(); location.reload(); } }
+</script>
+</body>
+</html>
