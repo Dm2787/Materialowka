@@ -151,7 +151,6 @@
             <button class="btn" style="width:70px" onclick="addDim(event)">Dodaj</button>
         </div>
         <div id="dimsSettingsList" style="margin-top:10px; background: rgba(0,0,0,0.2); border-radius: 8px;"></div>
-        <button class="btn btn-red" style="margin-top:15px; font-size:10px; opacity:0.5" onclick="factoryReset(event)">Reset Systemu</button>
     </div>
 
 <script>
@@ -480,7 +479,6 @@ function saveBase() { localStorage.setItem("materialData", JSON.stringify(materi
 function clearCurrentTab(e) { createRipple(e); if(confirm("Czy na pewno chcesz wyczyścić wszystko prócz daty?")) { document.getElementById("scaffoldNumber").value = ""; document.getElementById("calcLength").value = ""; document.getElementById("calcHeight").value = ""; document.getElementById("calcWidth").value = ""; document.getElementById("notesArea").value = ""; document.querySelectorAll(".qty").forEach(i => i.value = 0); saveTabData(); updateSummary(); } }
 function copySummary(e) { createRipple(e); playClick(1200); navigator.clipboard.writeText(document.getElementById("summaryContent").textContent); alert("Skopiowano!"); }
 function filterMaterials() { const term = this.value.toLowerCase(); document.querySelectorAll(".material-card").forEach(card => { card.style.display = card.innerText.toLowerCase().includes(term) ? "block" : "none"; }); }
-function factoryReset(e) { createRipple(e); if(confirm("Reset?")) { localStorage.clear(); location.reload(); } }
 </script>
 </body>
 </html>
