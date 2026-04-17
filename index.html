@@ -201,7 +201,11 @@ let materialData = JSON.parse(localStorage.getItem("materialData")) || {
     "Konsola": ["0,23m | 1.6","0,30m | 2.0","0,34m | 2.2","0,40m | 2.3","0,46m | 2.4","0,56m | 5.8","0,70m | 5.9","0,77m | 6.5"],
     "Konsola regulowana": ["0,23/0,46m | 4.3","0,46/0,69m | 4.1"],
     "Blacha stalowa": ["0,56m | 4.2","0,70m | 5.1","0,77m | 5.3","1,01m | 6.6","1,25m | 7.9","1,65m | 10.1","1,96m | 11.8","2,05m | 12.2","2,50m | 14.6","3,05m | 18.1"],
-    "Klapa": ["1,65m | 13.2","1,96m | 14.5","2,50 | 17.0","3,05m | 19.6"]
+    "Klapa": ["1,65m | 13.2","1,96m | 14.5","2,50 | 17.0","3,05m | 19.6"],
+    "Złącze stałe": [" | 1.2"],
+    "Złącze obrotowe": [" | 1.4"],
+    "Splinty/zawleczki": [" | 0.2"],
+    "Rura": ["1,00m | 4.1","1,50m | 6.1","2,00m | 8.0","2,50m | 10.3","3,00m | 12.4","3,50m | 14.1","4,00m | 16.7","4,50m | 18.0","5,00m | 20.1","6,00m | 24.1"],
 };
 let groupOrder = JSON.parse(localStorage.getItem("groupOrder")) || Object.keys(materialData);
 let tabs = JSON.parse(localStorage.getItem("tabs") || `["Budowa 1"]`);
