@@ -154,16 +154,38 @@
     </div>
 
 <script>
-/* --- OFFLINE ENGINE --- */
+/* --- PANCERNY SILNIK OFFLINE --- */
 if ('serviceWorker' in navigator) {
     const swCode = `
-        const CACHE = 'material-v1';
-        self.addEventListener('install', e => e.waitUntil(caches.open(CACHE).then(c => c.addAll(['./', 'index.html', 'manifest.json']))));
-        self.addEventListener('fetch', e => e.respondWith(caches.match(e.request).then(r => r || fetch(e.request))));
+        const CACHE = 'material-v2';
+        const assets = ['./', './index.html', './manifest.json'];
+
+        self.addEventListener('install', e => {
+            self.skipWaiting();
+            e.waitUntil(
+                caches.open(CACHE).then(c => {
+                    return c.addAll(assets).catch(err => console.log('Błąd plików:', err));
+                })
+            );
+        });
+
+        self.addEventListener('activate', e => e.waitUntil(clients.claim()));
+
+        self.addEventListener('fetch', e => {
+            e.respondWith(
+                caches.match(e.request).then(response => {
+                    return response || fetch(e.request).catch(() => {
+                        if (e.request.mode === 'navigate') {
+                            return caches.match('./index.html');
+                        }
+                    });
+                })
+            );
+        });
     `;
     const blob = new Blob([swCode], {type: 'text/javascript'});
     navigator.serviceWorker.register(URL.createObjectURL(blob));
-    }
+}
 /* --- AUDIO --- */
 let audioCtx = null;
 function initAudio() {
