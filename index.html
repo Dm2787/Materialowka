@@ -52,8 +52,12 @@
 
         /* --- ELEMENTY LISTY --- */
         .material-card { margin-top: 15px; }
-        .material-name { font-weight: 800; font-size: 18px; color: #93c5fd; border-bottom: 2px solid #3b82f6; margin-bottom: 8px; padding: 8px 5px; transition: 0.3s; }
-        .group-active .material-name { animation: text-pulse-yellow 1.5s infinite; border-bottom-color: #ffff00; }
+        .material-name { font-weight: 800; font-size: 18px; color: #93c5fd; border-bottom: 2px solid #3b82f6; margin-bottom: 8px; padding: 8px 5px; transition: 0.3s; display: flex; justify-content: space-between; align-items: center; }
+        .group-active .material-name > span:first-child { animation: text-pulse-yellow 1.5s infinite; }
+        .group-active .material-name { border-bottom-color: #ffff00; }
+        
+        .img-preview-btn { font-size: 18px; cursor: pointer; padding: 2px 6px; border-radius: 6px; transition: transform 0.1s, background-color 0.2s; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); display: inline-flex; align-items: center; justify-content: center; }
+        .img-preview-btn:active { transform: scale(0.85); background: #3b82f6; }
 
         .dimension-row { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-radius: 8px; margin-bottom: 4px; background: rgba(0,0,0,0.2); position: relative; overflow: hidden; transition: 0.3s; }
         .active-dimension { border: 1px solid rgba(255, 255, 0, 0.3); background: rgba(255, 255, 0, 0.04) !important; }
@@ -90,6 +94,21 @@
         .order-preview-item.current-active { background: #1e40af; color: #fff; border: 1px solid #3b82f6; }
         
         .weight-badge { font-size: 9px; color: #4ade80; background: rgba(74, 222, 128, 0.1); padding: 2px 4px; border-radius: 4px; margin-top: 2px; display: block; }
+
+        /* --- OKNA MODALNE (NOWY DESIGN DIALOGÓW) --- */
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(15, 23, 42, 0.85); align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s ease-in-out; padding: 20px; backdrop-filter: blur(4px); }
+        .modal.show { display: flex; opacity: 1; }
+        .modal-content { max-width: 100%; max-height: 80vh; border-radius: 12px; border: 2px solid #3b82f6; box-shadow: 0 0 20px rgba(59, 130, 246, 0.5); object-fit: contain; }
+
+        .custom-dialog { background: #1e293b; border: 2px solid #3b82f6; border-radius: 16px; padding: 20px; width: 100%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); transform: scale(0.9); transition: transform 0.2s ease; }
+        .modal.show .custom-dialog { transform: scale(1); }
+        .dialog-title { font-size: 18px; font-weight: 800; color: #fff; margin-bottom: 12px; text-shadow: 0 0 5px rgba(59, 130, 246, 0.3); }
+        .dialog-msg { font-size: 14px; color: #cbd5e1; margin-bottom: 20px; line-height: 1.4; }
+        .dialog-buttons { display: flex; gap: 10px; justify-content: flex-end; }
+        .dialog-btn { padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; border: none; font-size: 13px; text-transform: uppercase; }
+        .dialog-btn-confirm { background: #3b82f6; color: white; }
+        .dialog-btn-cancel { background: #475569; color: #cbd5e1; }
+        .dialog-btn-danger { background: #ef4444; color: white; }
     </style>
 </head>
 <body onclick="initAudio()">
@@ -115,7 +134,7 @@
         <div class="section-title">Kalkulator</div>
         <label class="input-label">Długość (np. 3+4.5)</label>
         <input id="calcLength" type="text" placeholder="Suma metrów bieżących">
-                <div style="display:flex; gap:8px">
+        <div style="display:flex; gap:8px">
             <div style="flex:1">
                 <label class="input-label">Wysokość (np. 2+2+1.5)</label>
                 <input id="calcHeight" type="text" placeholder="Suma metrów">
@@ -142,7 +161,7 @@
     </div>
 
     <div class="section" style="opacity: 0.9">
-        <div class="section-title">Zarządzanie Bazą</div>
+        <div class="section-title">Zarządzanie Baza</div>
         <div style="display:flex; gap:5px">
             <input id="newGroupName" style="margin:0" placeholder="Nowa grupa">
             <button class="btn" style="width:70px" onclick="addGroup(event)">OK</button>
@@ -163,6 +182,22 @@
             <button class="btn" style="width:70px" onclick="addDim(event)">Dodaj</button>
         </div>
         <div id="dimsSettingsList" style="margin-top:10px; background: rgba(0,0,0,0.2); border-radius: 8px;"></div>
+    </div>
+
+    <div id="imageModal" class="modal" onclick="closeImageModal()">
+        <img id="modalImg" class="modal-content" src="" alt="Podgląd materiału">
+    </div>
+
+    <div id="customDialogModal" class="modal">
+        <div class="custom-dialog">
+            <div id="dialogTitle" class="dialog-title">Komunikat</div>
+            <div id="dialogMsg" class="dialog-msg">Treść komunikatu...</div>
+            <input id="dialogInput" type="text" style="display:none; margin-bottom:15px;">
+            <div class="dialog-buttons">
+                <button id="dialogBtnCancel" class="dialog-btn dialog-btn-cancel">Anuluj</button>
+                <button id="dialogBtnConfirm" class="dialog-btn dialog-btn-confirm">OK</button>
+            </div>
+        </div>
     </div>
 
 <script>
@@ -207,6 +242,125 @@ function createRipple(e) {
     ripple.classList.add("ripple");
     el.appendChild(ripple);
     setTimeout(() => ripple.remove(), 600);
+}
+
+/* --- BAZA ZDJĘĆ MATERIAŁÓW --- */
+const materialImages = {
+    "Podkład": "https://picsum.photos/id/101/600/600",
+    "Stopa regulowana": "https://picsum.photos/id/102/600/600",
+    "Stopa uchylna": "https://picsum.photos/id/103/600/600",
+    "Kółko": "https://picsum.photos/id/104/600/600",
+    "Pion z regulacją wysokości": "https://picsum.photos/id/106/600/600",
+    "Pion": "https://picsum.photos/id/107/600/600",
+    "Słupek poręczy na belkę": "https://picsum.photos/id/108/600/600",
+    "Słupek poręczy na wange": "https://picsum.photos/id/109/600/600",
+    "Rygiel": "https://picsum.photos/id/110/600/600",
+    "Reka": "https://picsum.photos/id/111/600/600",
+    "Wanga": "https://picsum.photos/id/112/600/600",
+    "Diagonal": "https://picsum.photos/id/113/600/600",
+    "Konsola": "https://picsum.photos/id/114/600/600",
+    "Konsola regulowana": "https://picsum.photos/id/115/600/600",
+    "Konsola diagonal": "https://picsum.photos/id/116/600/600",
+    "Blacha stalowa 23cm": "https://picsum.photos/id/117/600/600",
+    "Blacha aluminiowa 23cm": "https://picsum.photos/id/118/600/600",
+    "Blacha stalowa 32cm (francuz)": "https://picsum.photos/id/119/600/600",
+    "Lem/Deck 40cm": "https://picsum.photos/id/120/600/600",
+    "Lem/Deck 60cm": "https://picsum.photos/id/121/600/600",
+    "Klapa": "https://picsum.photos/id/122/600/600",
+    "Drabina": "https://picsum.photos/id/123/600/600",
+    "Dźwigar 450": "https://picsum.photos/id/124/600/600",
+    "Dźwigar 750": "https://picsum.photos/id/125/600/600",
+    "Przerzut (pizza)": "https://picsum.photos/id/126/600/600",
+    "Cwaniak blacha-blacha": "https://picsum.photos/id/127/600/600",
+    "Cwaniak blacha-rygiel": "https://picsum.photos/id/128/600/600",
+    "Złącze stałe": "https://picsum.photos/id/129/600/600",
+    "Złącze obrotowe": "https://picsum.photos/id/130/600/600",
+    "Złącze dźwigarowe": "https://picsum.photos/id/131/600/600",
+    "Złącze kombinowane (zawias)": "https://picsum.photos/id/132/600/600",
+    "Szczypa": "https://picsum.photos/id/133/600/600",
+    "Splinty/zawleczki": "https://picsum.photos/id/134/600/600",
+    "Rura": "https://picsum.photos/id/135/600/600",
+    "Chuj na rygla": "https://picsum.photos/id/136/600/600",
+    "Chuj na wangę": "https://picsum.photos/id/137/600/600",
+    "Koszyk na rygla": "https://picsum.photos/id/138/600/600",
+    "Koszyk na wangę": "https://picsum.photos/id/139/600/600",
+    "Koszyk na barierke": "https://picsum.photos/id/140/600/600",
+    "Krawężnik aluminiowy": "https://picsum.photos/id/141/600/600",
+    "Krawężnik drewniany": "https://picsum.photos/id/142/600/600",
+    "Zaczep krawężnika (plastik)": "https://picsum.photos/id/143/600/600",
+    "Zaczep krawężnika (motylek)": "https://picsum.photos/id/144/600/600",
+    "Zaczep krawężnika (zabijak)": "https://picsum.photos/id/145/600/600"
+};
+
+/* --- FUNKCJE NOWEGO MODALA OKIENKA SYSTEMOWEGO --- */
+function showCustomDialog({ title, msg, type = 'alert', placeholder = '', defaultValue = '', isDanger = false }) {
+    return new Promise((resolve) => {
+        const modal = document.getElementById("customDialogModal");
+        const tEl = document.getElementById("dialogTitle");
+        const mEl = document.getElementById("dialogMsg");
+        const iEl = document.getElementById("dialogInput");
+        const btnCancel = document.getElementById("dialogBtnCancel");
+        const btnConfirm = document.getElementById("dialogBtnConfirm");
+
+        tEl.innerText = title;
+        mEl.innerText = msg;
+        
+        if (type === 'prompt') {
+            iEl.style.display = 'block';
+            iEl.value = defaultValue;
+            iEl.placeholder = placeholder;
+        } else {
+            iEl.style.display = 'none';
+        }
+
+        if (type === 'alert') {
+            btnCancel.style.display = 'none';
+        } else {
+            btnCancel.style.display = 'block';
+        }
+
+        if (isDanger) {
+            btnConfirm.className = "dialog-btn dialog-btn-danger";
+        } else {
+            btnConfirm.className = "dialog-btn dialog-btn-confirm";
+        }
+
+        modal.classList.add("show");
+
+        function close(result) {
+            modal.classList.remove("show");
+            btnConfirm.onclick = null;
+            btnCancel.onclick = null;
+            resolve(result);
+        }
+
+        btnConfirm.onclick = () => {
+            if (type === 'prompt') close(iEl.value);
+            else close(true);
+        };
+        
+        btnCancel.onclick = () => {
+            close(null);
+        };
+    });
+}
+
+function openImageModal(e, groupName) {
+    e.stopPropagation(); 
+    playClick(1100);
+    const modal = document.getElementById("imageModal");
+    const modalImg = document.getElementById("modalImg");
+    const imgSrc = materialImages[groupName];
+    
+    if(imgSrc) {
+        modalImg.src = imgSrc;
+        modal.classList.add("show");
+    }
+}
+
+function closeImageModal() {
+    const modal = document.getElementById("imageModal");
+    modal.classList.remove("show");
 }
 
 /* --- LOGIKA --- */
@@ -254,10 +408,9 @@ const defaultMaterialData = {
     "Krawężnik drewniany": ["0,56m | 2.1","0,70m | 2.5","0,77m | 2.7","1.01m | 3.0","1.25m | 3.4","1,65m | 4.0","1,96m | 4.3","2,05m | 4.5","2,50m | 5.0","3.05m | 6.0"],
     "Zaczep krawężnika (plastik)": [" | 0.2"],
     "Zaczep krawężnika (motylek)": [" | 0.1"],
-    "Zaczep krawężnika (zabijak)": [" | 1.0"],
+    "Zaczep krawężnika (zabijak)": [" | 1.0"]
 };
 
-/* --- PANCERNA BAZA INDEXEDDB --- */
 const dbName = "MaterialowkaDB";
 const storeName = "AppStorage";
 
@@ -330,7 +483,10 @@ function generateMainList() {
         const card = document.createElement("div");
         card.className = "section material-card";
         card.dataset.group = g;
-        card.innerHTML = `<div class="material-name">${g}</div>`;
+        
+        const hasImg = materialImages[g] ? `<span class="img-preview-btn" onclick="openImageModal(event, '${g}')">📷</span>` : '';
+        card.innerHTML = `<div class="material-name"><span>${g}</span> ${hasImg}</div>`;
+        
         let dims = materialData[g] || [];
         dims.forEach(d => {
             const parts = d.split("|");
@@ -377,7 +533,7 @@ function changeQty(e, key, delta) {
         } else if (newVal > 0) {
             input.style.setProperty('background', '#ffff00', 'important');
             input.style.setProperty('color', '#000', 'important');
-            input.style.borderColor = '#ffff00'; // Naprawiona literówka (było i.style)
+            input.style.borderColor = '#ffff00';
         } else {
             input.style.background = '';
             input.style.color = '';
@@ -518,7 +674,13 @@ function renderTabs() {
 
 async function addTab(e) {
     createRipple(e);
-    const name = prompt("Nazwa budowy:");
+    const name = await showCustomDialog({
+        title: 'Nowa budowa',
+        msg: 'Podaj nazwę dla nowej budowy:',
+        type: 'prompt',
+        placeholder: 'np. Budowa Gdańsk'
+    });
+    
     if(name && !tabs.includes(name)) {
         tabs.push(name); currentTab = name;
         await dbSet("tabs", tabs); 
@@ -529,13 +691,22 @@ async function addTab(e) {
 
 async function deleteTab(e, name) {
     e.stopPropagation();
-    if(tabs.length > 1 && confirm("Usunąć budowę?")) {
-        tabs = tabs.filter(t => t !== name);
-        await dbDel("tabData_" + name);
-        if(currentTab === name) currentTab = tabs[0];
-        await dbSet("tabs", tabs); 
-        await dbSet("currentTab", currentTab);
-        refreshUI();
+    if(tabs.length > 1) {
+        const confirmDel = await showCustomDialog({
+            title: 'Usuwanie budowy',
+            msg: `Czy na pewno chcesz bezpowrotnie usunąć budowę: "${name}"?`,
+            type: 'confirm',
+            isDanger: true
+        });
+        
+        if (confirmDel) {
+            tabs = tabs.filter(t => t !== name);
+            await dbDel("tabData_" + name);
+            if(currentTab === name) currentTab = tabs[0];
+            await dbSet("tabs", tabs); 
+            await dbSet("currentTab", currentTab);
+            refreshUI();
+        }
     }
 }
 
@@ -574,7 +745,13 @@ async function addDim(e) {
 
 async function editDim(g, i) {
     const oldVal = materialData[g][i];
-    const newVal = prompt("Edytuj (Wymiar | waga):", oldVal);
+    const newVal = await showCustomDialog({
+        title: 'Edycja wymiaru',
+        msg: 'Zmień format (Wymiar | waga):',
+        type: 'prompt',
+        defaultValue: oldVal
+    });
+    
     if (newVal !== null && newVal.trim() !== "") {
         materialData[g][i] = newVal.trim();
         await saveBase();
@@ -583,7 +760,14 @@ async function editDim(g, i) {
 }
 
 async function removeDim(g, i) { 
-    if(confirm("Usunąć ten wymiar?")) {
+    const confirmDel = await showCustomDialog({
+        title: 'Usuwanie wymiaru',
+        msg: 'Czy na pewno chcesz usunąć ten wymiar z bazy danych?',
+        type: 'confirm',
+        isDanger: true
+    });
+    
+    if(confirmDel) {
         materialData[g].splice(i, 1); 
         await saveBase(); 
         refreshUI(); 
@@ -634,14 +818,20 @@ async function saveBase() {
 
 async function clearCurrentTab(e) { 
     createRipple(e); 
-    if(confirm("Czy na pewno chcesz wyczyścić wszystko prócz daty dla bieżącej budowy?")) { 
+    const confirmClear = await showCustomDialog({
+        title: 'Czyszczenie formularza',
+        msg: 'Czy na pewno chcesz wyczyścić wszystkie wprowadzone ilości oraz kalkulator dla tej budowy?',
+        type: 'confirm',
+        isDanger: true
+    });
+    
+    if(confirmClear) { 
         document.getElementById("scaffoldNumber").value = ""; 
         document.getElementById("calcLength").value = ""; 
         document.getElementById("calcHeight").value = ""; 
         document.getElementById("calcWidth").value = ""; 
         document.getElementById("notesArea").value = ""; 
         
-        // Bezpieczne zerowanie tylko pól powiązanych z widocznym formularzem
         document.querySelectorAll(".qty").forEach(i => {
             i.value = 0;
             i.style.background = '';
@@ -649,13 +839,23 @@ async function clearCurrentTab(e) {
             i.style.borderColor = '';
         }); 
         
-        // Zapisujemy wyczyszczony stan wyłącznie do AKTUALNEJ zakładki budowy
         await saveTabData(); 
         updateSummary(); 
     } 
 }
 
-function copySummary(e) { createRipple(e); playClick(1200); navigator.clipboard.writeText(document.getElementById("summaryContent").textContent); alert("Skopiowano!"); }
+async function copySummary(e) { 
+    createRipple(e); 
+    playClick(1200); 
+    navigator.clipboard.writeText(document.getElementById("summaryContent").textContent); 
+    
+    await showCustomDialog({
+        title: 'Gotowe!',
+        msg: 'Podsumowanie materiałowe zostało skopiowane do Twojego schowka.',
+        type: 'alert'
+    });
+}
+
 function filterMaterials() { const term = this.value.toLowerCase(); document.querySelectorAll(".material-card").forEach(card => { card.style.display = card.innerText.toLowerCase().includes(term) ? "block" : "none"; }); }
 </script>
 </body>
