@@ -4,7 +4,8 @@ const ASSETS = [
     './index.html',
     './manifest.json',
     './icon-192.png', // Upewnij się, że nazwy plików ikon zgadzają się z Twoimi
-    './icon-512.png'
+    './icon-512.png',
+    './IMG/stopa_regulowana.jpg'
 ];
 
 // Instalacja Service Workera i buforowanie plików
