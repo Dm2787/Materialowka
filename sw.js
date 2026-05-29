@@ -6,7 +6,8 @@ const ASSETS = [
     './icon-192.png', // Upewnij się, że nazwy plików ikon zgadzają się z Twoimi
     './icon-512.png',
     './IMG/stopa_regulowana.jpg',
-    './IMG/stopa_uchylna.jpg'
+    './IMG/stopa_uchylna.jpg',
+    './IMG/rygiel.jpg'
 ];
 
 // Instalacja Service Workera i buforowanie plików
