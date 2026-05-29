@@ -8,7 +8,8 @@ const ASSETS = [
     './IMG/stopa_regulowana.jpg',
     './IMG/stopa_uchylna.jpg',
     './IMG/rygiel.jpg',
-    './IMG/pion.jpg'
+    './IMG/pion.jpg',
+    './IMG/reka.jpg'
 ];
 
 // Instalacja Service Workera i buforowanie plików
