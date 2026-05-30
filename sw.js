@@ -15,7 +15,8 @@ const ASSETS = [
     './IMG/lemdeck_60cm.jpg',
     './IMG/klapa.jpg',
     './IMG/blacha_stalowa.jpg',
-    './IMG/kraweznik_drewniany.jpg'
+    './IMG/kraweznik_drewniany.jpg',
+    './IMG/kraweznik_aluminiowy.jpg'
 ];
 
 // Instalacja Service Workera i buforowanie plików
