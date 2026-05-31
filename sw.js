@@ -1,4 +1,4 @@
-const CACHE_NAME = 'materialowka-v16'; // Zmiana tej wersji wymusi pobranie nowej ikony
+const CACHE_NAME = 'materialowka-v17'; // Zmiana tej wersji wymusi pobranie nowej ikony
 const ASSETS = [
     './',
     './index.html',
