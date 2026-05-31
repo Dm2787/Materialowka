@@ -17,7 +17,8 @@ const ASSETS = [
     './IMG/blacha_stalowa.jpg',
     './IMG/kraweznik_drewniany.jpg',
     './IMG/kraweznik_aluminiowy.jpg',
-    './IMG/zaczep_kraweznika_(plastik).jpg'
+    './IMG/zaczep_kraweznika_(plastik).jpg',
+    './IMG/zaczep_kraweznika_(motylek).jpg'
 ];
 
 // Instalacja Service Workera i buforowanie plików
