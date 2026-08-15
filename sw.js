@@ -24,6 +24,7 @@ const ASSETS = [
     './IMG/podklad.jpg',
     './IMG/kolko.jpg',
     './IMG/pion_z_regulacja_wysokosci.jpg',
+    './IMG/slupek_poreczy_na_belke.jpg',
 ];
 
 // Instalacja Service Workera i buforowanie plików
