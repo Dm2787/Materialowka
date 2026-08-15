@@ -1,4 +1,4 @@
-const CACHE_NAME = 'materialowka-v20'; // Zmiana tej wersji wymusi pobranie nowej ikony
+const CACHE_NAME = 'materialowka-v21'; // Zmiana tej wersji wymusi pobranie nowej ikony
 const ASSETS = [
     './',
     './index.html',
@@ -22,6 +22,7 @@ const ASSETS = [
     './IMG/zaczep_kraweznika_(zabijak).jpg',
     './IMG/blacha_aluminiowa.jpg',
     './IMG/podklad.jpg',
+    './IMG/kolko.jpg',
 ];
 
 // Instalacja Service Workera i buforowanie plików
